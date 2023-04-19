@@ -15,7 +15,7 @@ class MiniMenu extends StatelessWidget {
     return Expanded(
       flex: 1,
       child: Container(
-        padding: EdgeInsets.all(1),
+        padding: const EdgeInsets.all(1),
         decoration: BoxDecoration(
           color: Colors.grey.shade900,
           borderRadius: BorderRadius.circular(4),
@@ -30,7 +30,7 @@ class MiniMenu extends StatelessWidget {
               child: IconButton(
                 alignment: Alignment.center,
                 onPressed: () => Navigator.pushNamed(context, HomePage.route),
-                icon: Icon(Icons.home),
+                icon: const Icon(Icons.home),
                 iconSize: 24,
                 visualDensity: VisualDensity.compact,
               ),
@@ -38,7 +38,7 @@ class MiniMenu extends StatelessWidget {
             FittedBox(
               child: IconButton(
                 onPressed: () {},
-                icon: Icon(Icons.precision_manufacturing_outlined),
+                icon: const Icon(Icons.precision_manufacturing_outlined),
                 iconSize: 24,
                 visualDensity: VisualDensity.compact,
               ),
@@ -46,18 +46,18 @@ class MiniMenu extends StatelessWidget {
             FittedBox(
               child: IconButton(
                 onPressed: () => Navigator.pushNamed(context, OptionPage.route),
-                icon: Icon(Icons.settings),
+                icon: const Icon(Icons.settings),
                 iconSize: 24,
                 visualDensity: VisualDensity.compact,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               width: 16,
             ),
             FittedBox(
               child: IconButton(
                 onPressed: () {},
-                icon: Icon(Icons.density_medium_outlined),
+                icon: const Icon(Icons.density_medium_outlined),
                 iconSize: 24,
                 visualDensity: VisualDensity.compact,
               ),

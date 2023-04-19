@@ -1,8 +1,4 @@
-import 'package:bot1777/models/coin_model.dart';
 import 'package:flutter/material.dart';
-import 'package:bot1777/models/balance_model.dart';
-import 'package:get/get.dart';
-import 'package:bot1777/components/coin_list_tile.dart';
 import 'package:bot1777/components/mini_menu.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -32,12 +28,12 @@ class OptionPageState extends State<OptionPage> {
             platform: DevicePlatform.linux,
             sections: [
               SettingsSection(
-                title: Text('Common'),
+                title: const Text('Common'),
                 tiles: <SettingsTile>[
                   SettingsTile.navigation(
-                    leading: Icon(Icons.language),
-                    title: Text('Language'),
-                    value: Text('English'),
+                    leading: const Icon(Icons.language),
+                    title: const Text('Language'),
+                    value: const Text('English'),
                   ),
                   SettingsTile.switchTile(
                     onToggle: (value) {
@@ -47,17 +43,17 @@ class OptionPageState extends State<OptionPage> {
                       //print(value);
                     },
                     initialValue: true,
-                    leading: Icon(Icons.format_paint),
-                    title: Text('Enable custom theme'),
+                    leading: const Icon(Icons.format_paint),
+                    title: const Text('Enable custom theme'),
                   ),
                 ],
               ),
             ],
           ),
         ),
-        Spacer(),
+        const Spacer(),
         MiniMenu(context: context),
-        SizedBox(
+        const SizedBox(
           height: 16,
         ),
       ],
@@ -66,7 +62,6 @@ class OptionPageState extends State<OptionPage> {
 
   @override
   void dispose() {
-    //storeModel.value.stream.cancel();
     super.dispose();
   }
 }

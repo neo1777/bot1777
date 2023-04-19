@@ -20,8 +20,6 @@ class HomePageState extends State<HomePage> {
   @override
   initState() {
     balanceModel.value.getBalance();
-    //balanceModel.value.getSymbolUser();
-    //balanceModel.value.getUpdateUser();
     super.initState();
   }
 
@@ -34,7 +32,6 @@ class HomePageState extends State<HomePage> {
 
   Widget body() {
     return Obx(() {
-      print('GridView obx');
       var coins = balanceModel.value.coins;
 
       return Column(
@@ -57,9 +54,9 @@ class HomePageState extends State<HomePage> {
               },
             ),
           ),
-          Spacer(),
+          const Spacer(),
           MiniMenu(context: context),
-          SizedBox(
+          const SizedBox(
             height: 16,
           ),
         ],
@@ -69,7 +66,6 @@ class HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    //storeModel.value.stream.cancel();
     super.dispose();
   }
 }

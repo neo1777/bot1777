@@ -1,6 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:binance_spot/binance_spot.dart';
 import 'package:bot1777/models/balance_model.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +14,6 @@ class CoinListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('CoinListTile');
 
     return Container(
       decoration: BoxDecoration(
@@ -27,12 +24,12 @@ class CoinListTile extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Text(
-              '${coinBalance.symbol}',
+              coinBalance.symbol,
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey.shade400,
@@ -43,7 +40,7 @@ class CoinListTile extends StatelessWidget {
               '${coinBalance.qty}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
@@ -78,19 +75,12 @@ class RealTimePrice extends StatelessWidget {
         simbolo = streamModel.value.ticker!.symbol;
         priceOld = streamModel.value.ticker!.priceChange;
         price = streamModel.value.ticker!
-            .prichePercentChange; //(streamModel.value.ticker!.bestBid * coinBalance.qty);
-        // if (price > priceOld) {
-        //   color = Colors.green;
-        //   priceOld = price;
-        // } else {
-        //   color = Colors.red;
-        //   priceOld = price;
-        // }
+            .prichePercentChange; 
       }
       return Column(
         children: [
           AutoSizeText(
-            '${simbolo}',
+            simbolo,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
