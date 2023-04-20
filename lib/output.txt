@@ -1,0 +1,765 @@
+>>> ./main.dart
+import 'package:flutter/material.dart';
+import 'package:bot1777/app.dart';
+
+void main() async {
+
+  runApp(const App());
+}>>> ./env.dart
+import 'package:envied/envied.dart';
+
+part 'env.g.dart';
+
+@Envied(path: '.env')
+abstract class Env {
+  @EnviedField(varName: 'secretkey', obfuscate: true)
+  static String secretkey = _Env.secretkey;
+  @EnviedField(varName: 'apikey', obfuscate: true)
+  static String apikey = _Env.apikey;
+}
+>>> ./components/coin_list_tile.dart
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bot1777/models/balance_model.dart';
+import 'package:flutter/material.dart';
+
+import 'package:bot1777/models/coin_model.dart';
+import 'package:get/get.dart';
+
+class CoinListTile extends StatelessWidget {
+  final CoinModel coinBalance;
+  const CoinListTile({
+    Key? key,
+    required this.coinBalance,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade900,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: Colors.grey.shade800,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              coinBalance.symbol,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade400,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            AutoSizeText(
+              '${coinBalance.qty}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            RealTimePrice(
+              coinBalance: coinBalance,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RealTimePrice extends StatelessWidget {
+  final CoinModel coinBalance;
+
+  const RealTimePrice({
+    super.key,
+    required this.coinBalance,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double price = 0;
+    double priceOld = 0;
+    String simbolo = '';
+    Color color = Colors.white;
+    return Obx(() {
+      if (streamModel.value.ticker != null &&
+          streamModel.value.ticker!.symbol.startsWith(coinBalance.symbol)) {
+        simbolo = streamModel.value.ticker!.symbol;
+        priceOld = streamModel.value.ticker!.priceChange;
+        price = streamModel.value.ticker!
+            .prichePercentChange; 
+      }
+      return Column(
+        children: [
+          AutoSizeText(
+            simbolo,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          AutoSizeText(
+            '${priceOld.toStringAsFixed(3)} - ${price.toStringAsFixed(3)}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
+>>> ./components/mini_menu.dart
+import 'package:bot1777/pages/home_page.dart';
+import 'package:bot1777/pages/option_page.dart';
+import 'package:flutter/material.dart';
+
+class MiniMenu extends StatelessWidget {
+  const MiniMenu({
+    super.key,
+    required this.context,
+  });
+
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: 1,
+      child: Container(
+        padding: const EdgeInsets.all(1),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade900,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: Colors.grey.shade800,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FittedBox(
+              child: IconButton(
+                alignment: Alignment.center,
+                onPressed: () => Navigator.pushNamed(context, HomePage.route),
+                icon: const Icon(Icons.home),
+                iconSize: 24,
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+            FittedBox(
+              child: IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.precision_manufacturing_outlined),
+                iconSize: 24,
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+            FittedBox(
+              child: IconButton(
+                onPressed: () => Navigator.pushNamed(context, OptionPage.route),
+                icon: const Icon(Icons.settings),
+                iconSize: 24,
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+            const SizedBox(
+              width: 16,
+            ),
+            FittedBox(
+              child: IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.density_medium_outlined),
+                iconSize: 24,
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+>>> ./app.dart
+import 'package:bot1777/models/balance_model.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'package:bot1777/pages/home_page.dart';
+import 'package:bot1777/pages/option_page.dart';
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      onInit: () async {
+        await balanceModel.value.initialize();
+      },
+      theme: ThemeData.dark(useMaterial3: true),
+      initialRoute: HomePage.route,
+      onGenerateRoute: ((settings) {
+        final pageBuilder = {
+          HomePage.route: ((_) => const HomePage()),
+          OptionPage.route: ((_) => const OptionPage()),
+        }[settings.name];
+        return MaterialPageRoute(builder: pageBuilder!);
+      }),
+    );
+  }
+}
+>>> ./pages/option_page.dart
+import 'package:flutter/material.dart';
+import 'package:bot1777/components/mini_menu.dart';
+import 'package:settings_ui/settings_ui.dart';
+
+class OptionPage extends StatefulWidget {
+  static const route = '/option';
+
+  const OptionPage({Key? key}) : super(key: key);
+
+  @override
+  OptionPageState createState() => OptionPageState();
+}
+
+class OptionPageState extends State<OptionPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: body(),
+    );
+  }
+
+  Widget body() {
+    return Column(
+      children: [
+        Expanded(
+          flex: 30,
+          child: SettingsList(
+            platform: DevicePlatform.linux,
+            sections: [
+              SettingsSection(
+                title: const Text('Common'),
+                tiles: <SettingsTile>[
+                  SettingsTile.navigation(
+                    leading: const Icon(Icons.language),
+                    title: const Text('Language'),
+                    value: const Text('English'),
+                  ),
+                  SettingsTile.switchTile(
+                    onToggle: (value) {
+                      setState(() {});
+                    },
+                    onPressed: (context) {
+                      //print(value);
+                    },
+                    initialValue: true,
+                    leading: const Icon(Icons.format_paint),
+                    title: const Text('Enable custom theme'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
+        MiniMenu(context: context),
+        const SizedBox(
+          height: 16,
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+}
+>>> ./pages/home_page.dart
+import 'package:bot1777/components/mini_menu.dart';
+import 'package:bot1777/models/coin_model.dart';
+import 'package:flutter/material.dart';
+import 'package:bot1777/models/balance_model.dart';
+import 'package:get/get.dart';
+import 'package:bot1777/components/coin_list_tile.dart';
+
+class HomePage extends StatefulWidget {
+  static const route = '/';
+
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  HomePageState createState() => HomePageState();
+}
+
+class HomePageState extends State<HomePage> {
+  List<CoinModel> coins = [];
+
+  @override
+  initState() {
+    balanceModel.value.getBalance();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: body(),
+    );
+  }
+
+  Widget body() {
+    return Obx(() {
+      var coins = balanceModel.value.coins;
+
+      return Column(
+        children: [
+          Expanded(
+            flex: 30,
+            child: GridView.builder(
+              shrinkWrap: false,
+              padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 250,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: coins.length,
+              itemBuilder: (context, index) {
+                return CoinListTile(
+                  coinBalance: coins[index],
+                );
+              },
+            ),
+          ),
+          const Spacer(),
+          MiniMenu(context: context),
+          const SizedBox(
+            height: 16,
+          ),
+        ],
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+}
+>>> ./env.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'env.dart';
+
+// **************************************************************************
+// EnviedGenerator
+// **************************************************************************
+
+class _Env {
+  static const List<int> _enviedkeysecretkey = [
+    979327303,
+    3426897631,
+    3993942615,
+    2418577791,
+    3477375249,
+    1169751568,
+    3175053739,
+    3811679280,
+    4008280761,
+    276892016,
+    4150919621,
+    799424656,
+    980875158,
+    3812709692,
+    713829377,
+    627460395,
+    1176721001,
+    3754057146,
+    3533030975,
+    1663827463,
+    1951525838,
+    4217471991,
+    2871827655,
+    237490767,
+    883294444,
+    145693493,
+    2758285343,
+    4080580023,
+    1770536344,
+    2162526590,
+    3318308975,
+    2628052904,
+    1243961180,
+    743219453,
+    3708200708,
+    1004937130,
+    1142808545,
+    4284189299,
+    624025206,
+    2343562762,
+    2604018372,
+    2555132130,
+    2024824917,
+    2128668771,
+    2573426217,
+    1176195373,
+    307834977,
+    1741342108,
+    890988564,
+    3080963294,
+    1162379509,
+    47571813,
+    3255898102,
+    1415783703,
+    1345844964,
+    3892099570,
+    2615953627,
+    2506588781,
+    2802702663,
+    3380206978,
+    2153965200,
+    3257879216,
+    600048544,
+    3777909994
+  ];
+  static const List<int> _envieddatasecretkey = [
+    979327295,
+    3426897592,
+    3993942629,
+    2418577716,
+    3477375273,
+    1169751669,
+    3175053760,
+    3811679319,
+    4008280717,
+    276891941,
+    4150919593,
+    799424710,
+    980875206,
+    3812709750,
+    713829487,
+    627460381,
+    1176720896,
+    3754057180,
+    3533031001,
+    1663827539,
+    1951525822,
+    4217471878,
+    2871827639,
+    237490720,
+    883294428,
+    145693442,
+    2758285405,
+    4080580095,
+    1770536384,
+    2162526476,
+    3318308951,
+    2628052978,
+    1243961133,
+    743219396,
+    3708200819,
+    1004937209,
+    1142808455,
+    4284189249,
+    624025119,
+    2343562850,
+    2604018357,
+    2555132048,
+    2024824884,
+    2128668756,
+    2573426252,
+    1176195418,
+    307834933,
+    1741342168,
+    890988627,
+    3080963223,
+    1162379404,
+    47571805,
+    3255898034,
+    1415783744,
+    1345844950,
+    3892099484,
+    2615953583,
+    2506588698,
+    2802702606,
+    3380207062,
+    2153965289,
+    3257879172,
+    600048528,
+    3777909897
+  ];
+  static final secretkey = String.fromCharCodes(
+    List.generate(_envieddatasecretkey.length, (i) => i, growable: false)
+        .map((i) => _envieddatasecretkey[i] ^ _enviedkeysecretkey[i])
+        .toList(growable: false),
+  );
+  static const List<int> _enviedkeyapikey = [
+    26428288,
+    710020133,
+    3809835147,
+    3081814534,
+    3444432892,
+    151580830,
+    661615128,
+    1736101487,
+    3471689710,
+    3731091604,
+    504164108,
+    2094721217,
+    3853584205,
+    1361840716,
+    2661265907,
+    3163279188,
+    2543509417,
+    1315328806,
+    1929278387,
+    1815093325,
+    1398756841,
+    2468717829,
+    2036012857,
+    2020681643,
+    4244893703,
+    3311423523,
+    1536277719,
+    1939651168,
+    228612365,
+    3195468089,
+    2242082652,
+    86643103,
+    1492702112,
+    3747318382,
+    4207249159,
+    1482461110,
+    218976064,
+    2367073276,
+    1300247081,
+    2995679052,
+    382874773,
+    2958982336,
+    1280022,
+    733244522,
+    3223583195,
+    3724600461,
+    3807461136,
+    2441901060,
+    4070360977,
+    821569363,
+    633169964,
+    522178755,
+    931739695,
+    4272168756,
+    966942985,
+    3647262486,
+    3703325049,
+    285433221,
+    2789392788,
+    1086693786,
+    151485279,
+    3020341510,
+    2157003043,
+    322407284
+  ];
+  static const List<int> _envieddataapikey = [
+    26428391,
+    710020175,
+    3809835196,
+    3081814625,
+    3444432798,
+    151580875,
+    661615229,
+    1736101398,
+    3471689625,
+    3731091702,
+    504164169,
+    2094721190,
+    3853584253,
+    1361840665,
+    2661265867,
+    3163279132,
+    2543509448,
+    1315328873,
+    1929278343,
+    1815093311,
+    1398756797,
+    2468717930,
+    2036012887,
+    2020681692,
+    4244893803,
+    3311423584,
+    1536277652,
+    1939651087,
+    228612428,
+    3195468120,
+    2242082619,
+    86643162,
+    1492702145,
+    3747318283,
+    4207249267,
+    1482461166,
+    218976003,
+    2367073175,
+    1300247166,
+    2995678981,
+    382874832,
+    2958982322,
+    1280036,
+    733244431,
+    3223583112,
+    3724600567,
+    3807461225,
+    2441901132,
+    4070361082,
+    821569333,
+    633169995,
+    522178742,
+    931739753,
+    4272168806,
+    966943050,
+    3647262581,
+    3703324982,
+    285433270,
+    2789392871,
+    1086693886,
+    151485287,
+    3020341604,
+    2157003091,
+    322407190
+  ];
+  static final apikey = String.fromCharCodes(
+    List.generate(_envieddataapikey.length, (i) => i, growable: false)
+        .map((i) => _envieddataapikey[i] ^ _enviedkeyapikey[i])
+        .toList(growable: false),
+  );
+}
+>>> ./repositories/binance_repository.dart
+import 'package:binance_spot/binance_spot.dart';
+import 'package:bot1777/env.dart';
+import 'package:bot1777/models/coin_model.dart';
+
+class BinanceRepository {
+  late final BinanceSpot binanceSpot;
+
+  Future<void> initialize() async {
+    binanceSpot = BinanceSpot(key: Env.apikey, secret: Env.secretkey);
+  }
+
+  Future<List<CoinModel>> getCoinList() async {
+    final response = await binanceSpot.accountInformation();
+    final coinList = <CoinModel>[];
+
+    if (response.isRight) {
+      for (final element in response.right.balances) {
+        if (element.free > 0.0) {
+          coinList.add(CoinModel(
+            symbol: element.asset,
+            qty: element.free,
+          ));
+        }
+      }
+    } else {
+      throw Exception('Error getting account information: ${response.left}');
+    }
+
+    return coinList;
+  }
+
+  Future<Stream> getUserDataStream() async {
+    String listenKey = '';
+    final keyresult = await binanceSpot.createListenKey();
+    if (keyresult.isRight) {
+      listenKey = keyresult.right;
+    } else {}
+    final response = binanceSpot.userDataStream(listenKey: listenKey);
+
+    return response;
+  }
+
+  Future<Stream<WsTicker>> getTickerStream(String symbol) async {
+    final Stream<WsTicker> response = binanceSpot.tickerStream(symbol: symbol);
+    return response;
+  }
+}
+>>> ./models/balance_model.dart
+import 'package:binance_spot/binance_spot.dart';
+import 'package:get/get.dart';
+
+import 'package:bot1777/models/coin_model.dart';
+import 'package:bot1777/repositories/binance_repository.dart';
+
+final balanceModel = BalanceModel().obs;
+final streamModel = StreamModel().obs;
+
+class BalanceModel {
+  List<CoinModel> coins = [];
+
+  BinanceRepository binanceRepository = BinanceRepository();
+
+  Future<void> initialize() async {
+    await binanceRepository.initialize();
+  }
+
+  Future<void> getBalance() async {
+    coins = await binanceRepository.getCoinList();
+    for (var element in coins) {
+      streamModel.value.getSymbolUser(element.symbol);
+    }
+
+    balanceModel.refresh();
+  }
+
+  Future<void> getUpdateUser() async {
+    final stream = await binanceRepository.getUserDataStream();
+    stream.listen((event) {
+      balanceModel.refresh();
+    });
+  }
+}
+
+class StreamModel {
+  WsTicker? ticker;
+
+  Future<void> getSymbolUser(String symbol) async {
+    await Future.delayed(const Duration(seconds: 1));
+    var stream = await balanceModel.value.binanceRepository
+        .getTickerStream('${symbol}usdt');
+    stream.listen((WsTicker event) {
+      ticker = event;
+      streamModel.refresh();
+    });
+  }
+
+  bool hasPurchased = false;
+  double purchaseQuantity = 0;
+
+}
+>>> ./models/coin_model.dart
+
+class CoinModel {
+  final String symbol;
+  final double qty;
+
+  CoinModel({
+    required this.symbol,
+    required this.qty,
+  });
+}
+
+
