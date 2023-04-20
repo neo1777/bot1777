@@ -1,16 +1,12 @@
 import 'package:binance_spot/binance_spot.dart';
+import 'package:bot1777/env.dart';
 import 'package:bot1777/models/coin_model.dart';
 
 class BinanceRepository {
   late final BinanceSpot binanceSpot;
 
   Future<void> initialize() async {
-    const apiKey =
-        "apiKey";
-    const apiSecret =
-        "apiSecret";
-
-    binanceSpot = BinanceSpot(key: apiKey, secret: apiSecret);
+    binanceSpot = BinanceSpot(key: Env.apikey, secret: Env.secretkey);
   }
 
   Future<List<CoinModel>> getCoinList() async {
@@ -38,8 +34,7 @@ class BinanceRepository {
     final keyresult = await binanceSpot.createListenKey();
     if (keyresult.isRight) {
       listenKey = keyresult.right;
-    } else {
-    }
+    } else {}
     final response = binanceSpot.userDataStream(listenKey: listenKey);
 
     return response;

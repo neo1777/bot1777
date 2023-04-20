@@ -1,9 +1,0 @@
->>> ./main.dart
->>> ./components/coin_list_tile.dart
->>> ./components/mini_menu.dart
->>> ./app.dart
->>> ./pages/option_page.dart
->>> ./pages/home_page.dart
->>> ./repositories/binance_repository.dart
->>> ./models/balance_model.dart
->>> ./models/coin_model.dart
